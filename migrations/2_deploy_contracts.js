@@ -1,6 +1,6 @@
 const Board = artifacts.require("Board");
 const Tamagochi = artifacts.require("TamagochiToken");
-const Fundraising = artifcats.require("Fundraising");
+const Fundraising = artifacts.require("Fundraising");
 
 
 module.exports = function(deployer) {
