@@ -1,0 +1,4 @@
+Board: 0.0902836
+Tamagochi: 0.0826185
+
+Fundraising: ? (is deployed by Board; one for each organisation)
