@@ -18,6 +18,8 @@ contract Board {
     mapping(address => bool) public registered;
     address[] public organisations;
 
+    TamagochiToken private tamagochiToken;
+
     event OrganisationRequest(string name, string url);
     event OrganisationAdded(string name, address account);
     event OrganisationRemoved(string name, address account);
@@ -32,54 +34,77 @@ contract Board {
         _;
     }
 
-    modifier isRegistered(address _account) {
-        require(registered[_account] == true, "Organisation is not registered!");
+    modifier isRegistered(address account) {
+        require(registered[account] == true, "Organisation is not registered!");
         _;
     }
 
-    modifier isNotRegistered(address _account) {
-        require(registered[_account] == false, "Organisation is already registered!");
+    modifier isNotRegistered(address account) {
+        require(registered[account] == false, "Organisation is already registered!");
         _;
+    }
+
+    modifier isInit() {
+        require(address(tamagochiToken) != address(0), "Token Contract has not yet been initialized");
+        _;
+    }
+
+    function setTokenContractAddress(address contractAddress) external onlyOwner {
+        tamagochiToken = TamagochiToken(contractAddress);
     }
 
     // only owner decides who is allowed to participate on this platform
-    function addOrganisation(address _account, string calldata _name) external onlyOwner isNotRegistered(_account) {
-        Fundraising fundraising = new Fundraising();
-        fundraising.setFundraisingHead(_account);
+    function addOrganisation(address account, string calldata name) external onlyOwner isNotRegistered(account) isInit {
+        Fundraising fundraising = new Fundraising(address(tamagochiToken));
+        fundraising.setFundraisingHead(account);
+        tamagochiToken.authorizeBoard(address(fundraising));
 
-        Organisation memory organisation = Organisation(_name, fundraising);
+        Organisation memory organisation = Organisation(name, fundraising);
 
-        organisationBoards[_account] = organisation;
-        registered[_account] = true;
-        organisations.push(_account);
+        organisationBoards[account] = organisation;
+        registered[account] = true;
+        organisations.push(account);
 
-        emit OrganisationAdded(_name, _account);
+        emit OrganisationAdded(name, account);
     }
 
     // manually remove org from board and deactivate associated funding contract
-    function removeOrganisation(address _account) external onlyOwner isRegistered(_account) {
-        Fundraising fundraising = Fundraising(organisationBoards[_account].fundraising);
+    function removeOrganisation(address account) external onlyOwner isRegistered(account) {
+        Fundraising fundraising = Fundraising(organisationBoards[account].fundraising);
         fundraising.deactivate();
 
-        delete organisationBoards[_account];
-        delete registered[_account];
+        emit OrganisationRemoved(organisationBoards[account].name, account);
+        delete organisationBoards[account];
+        delete registered[account];
 
         for (uint i = 0; i < organisations.length; i++) {
-            if (organisations[i] == _account) {
+            if (organisations[i] == account) {
                 delete organisations[i];
             }
         }
     }
 
     // returns the fundraising contract that is associated to a given organisation
-    function getFundraisingContract(address _account) public view isRegistered(_account) returns (Fundraising) {
-        return Fundraising(organisationBoards[_account].fundraising);
+    function getFundraisingContract(address account) public view isRegistered(account) returns (Fundraising) {
+        return organisationBoards[account].fundraising;
     }
 
     // organisations can send an request for participation on this platform
-    function request(string memory _name, string memory _url) external {
-        emit OrganisationRequest(_name, _url);
+    function request(string memory name, string memory url) external {
+        emit OrganisationRequest(name, url);
     }
+
+    /*  
+    TODO possible not needed anymore
+    function authorizeBoard(address account) private {
+        string memory signature = "authorizeBoard(address)";
+        bytes memory input = abi.encodeWithSignature(signature, account);
+        (bool status, ) = address(tamagochiToken).delegatecall(input);
+        if (status != true) {
+            revert();
+        }
+    }
+    */
 
     // any ether that has been deposited in this contract can be retrieved
     function payout() external onlyOwner {
@@ -87,6 +112,7 @@ contract Board {
         payable(owner).transfer(address(this).balance);
     }
 
-    // FEATURE
-    // deslfestruct option...
+    function deactivate() external onlyOwner {
+        selfdestruct(payable(owner));
+    }
 }
