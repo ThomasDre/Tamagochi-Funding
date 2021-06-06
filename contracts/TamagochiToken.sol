@@ -24,8 +24,7 @@ contract TamagochiToken is ERC721, AccessControl {
     struct TamagochiData {
         // the organisation minted the token
         address organisation;
-        // individual name
-        string name;
+
         /*
         attributes
         
@@ -44,8 +43,6 @@ contract TamagochiToken is ERC721, AccessControl {
     address public owner;
 
     bytes32 private constant ADMIN_ROLE = keccak256("ADMIN");
-    // TODO this role is not needed
-    bytes32 private constant FUNDHEAD_ROLE = keccak256("FUNDRAISING_HEAD");
     bytes32 private constant FUNDRAISING_BOARD = keccak256("FUNDRAISING_BOARD");
     
     /*
@@ -60,14 +57,16 @@ contract TamagochiToken is ERC721, AccessControl {
     uint24 public constant WELL_ENTERTAINED_OPTIMUM_DEFAULT = 604800; // 1 week
     uint24 public constant WELL_EDUCATED_OPTIMUM_DEFAULT = 1209600;   // 2 weeks
 
-    mapping(address => bool) customSettings;
-    mapping(address => uint24) wellFedOptimumCustom;
-    mapping(address => uint24) wellCareOptimumCustom;
-    mapping(address => uint24) wellEntertainedOptimumCustom;
-    mapping(address => uint24) wellEducatedOptimumCustom;
+    mapping(address => bool) private customSettings;
+    mapping(address => uint24) private customWellFedOptimum;
+    mapping(address => uint24) private customWellCareOptimum;
+    mapping(address => uint24) private customWellEntertainedOptimum;
+    mapping(address => uint24) private customWellEducatedOptimum;
 
     // SMELL: storing the data off-chain might be preferable
     mapping(uint => TamagochiData) public data;
+
+    uint private counter = 0;
 
     // TODO mappings for items (headwear, shorts, shirts, jackets, neat-stuff)
 
@@ -79,11 +78,10 @@ contract TamagochiToken is ERC721, AccessControl {
     Thereby the owners will further donate to the associated project!
      */
 
-    constructor(address mainBoard) ERC721("Tamagochin NFT", "TAT") {
+    constructor(address board) ERC721("Tamagochin NFT", "TAT") {
         owner = msg.sender;
         _setupRole(ADMIN_ROLE, msg.sender);
-        _setupRole(ADMIN_ROLE, mainBoard);
-        _setRoleAdmin(FUNDHEAD_ROLE, ADMIN_ROLE);
+        _setupRole(ADMIN_ROLE, board);
         _setRoleAdmin(FUNDRAISING_BOARD, ADMIN_ROLE);
     }
     
@@ -107,33 +105,68 @@ contract TamagochiToken is ERC721, AccessControl {
         grantRole(FUNDRAISING_BOARD, board);
     }
 
-    function activateCustomSettings() private {
-        if (customSettings[msg.sender] == false) {
-            customSettings[msg.sender] = true;
+    function isCustomSetting(address account) public view returns(bool) {
+        return customSettings[account];
+    }
+
+    function getWellFedOptimum(address account) public view returns(uint24) {
+        if (customWellFedOptimum[account] > 0) {
+            return customWellFedOptimum[account];
+        } else {
+            return WELL_FED_OPTIMUM_DEFAULT;
+        }
+    }
+
+    function getWellCareOptimum(address account) public view returns(uint24) {
+        if (customWellCareOptimum[account] > 0) {
+            return customWellCareOptimum[account];
+        } else {
+            return WELL_CARE_OPTIMUM_DEFAULT;
+        }
+    }
+
+    function getWellEntertainedOptimum(address account) public view returns(uint24) {
+        if (customWellEntertainedOptimum[account] > 0) {
+            return customWellEntertainedOptimum[account];
+        } else {
+            return WELL_ENTERTAINED_OPTIMUM_DEFAULT;
+        }
+    }
+
+    function getWellEducatedOptimum(address account) public view returns(uint24) {
+        if (customWellEducatedOptimum[account] > 0) {
+            return customWellEducatedOptimum[account];
+        } else {
+            return WELL_EDUCATED_OPTIMUM_DEFAULT;
         }
     }
 
     function setWellFedOptimum(uint24 optimum) public onlyRole(FUNDRAISING_BOARD) {
-        customSettings[msg.sender] = true;
-        wellFedOptimumCustom[msg.sender] = optimum;
+        customWellFedOptimum[msg.sender] = optimum;
+        activateCustomSettings();
     }
 
     function setWellCareOptimum(uint24 optimum) public onlyRole(FUNDRAISING_BOARD) {
-        wellCareOptimumCustom[msg.sender] = optimum;
+        customWellCareOptimum[msg.sender] = optimum;
         activateCustomSettings();
     }
 
     function setWellEntertainedOptimum(uint24 optimum) public onlyRole(FUNDRAISING_BOARD) {
-        wellEntertainedOptimumCustom[msg.sender] = optimum;
+        customWellEntertainedOptimum[msg.sender] = optimum;
+        activateCustomSettings();
     }
 
     function setWellEducatedOptimum(uint24 optimum) public onlyRole(FUNDRAISING_BOARD) {
-        wellEducatedOptimumCustom[msg.sender] = optimum;
+        customWellEducatedOptimum[msg.sender] = optimum;
+        activateCustomSettings();
     }
 
-    function setTamagochiData(uint token, string calldata name, address organisation) public onlyRole(FUNDRAISING_BOARD) {
-        data[token].name = name;
-        data[token].organisation = organisation;
+     function resetOptimums() public onlyRole(FUNDRAISING_BOARD) {
+        delete customSettings[msg.sender];
+        delete customWellFedOptimum[msg.sender];
+        delete customWellCareOptimum[msg.sender];
+        delete customWellEntertainedOptimum[msg.sender];
+        delete customWellEducatedOptimum[msg.sender];
     }
 
     function applyItem(uint token, uint24 food, uint24 careness, uint24 entertainment, uint24 education) public onlyRole(FUNDRAISING_BOARD) isOwnerOf(token) {
@@ -141,14 +174,6 @@ contract TamagochiToken is ERC721, AccessControl {
         data[token].care += careness;
         data[token].entertained += entertainment;
         data[token].educated += education;
-    }
-
-    function resetOptimums() public onlyRole(FUNDRAISING_BOARD) {
-        delete customSettings[msg.sender];
-        delete wellFedOptimumCustom[msg.sender];
-        delete wellCareOptimumCustom[msg.sender];
-        delete wellEntertainedOptimumCustom[msg.sender];
-        delete wellEducatedOptimumCustom[msg.sender];
     }
 
     function resetAttributes(uint token) public onlyRole(FUNDRAISING_BOARD) isOwnerOf(token)  {
@@ -161,8 +186,13 @@ contract TamagochiToken is ERC721, AccessControl {
     } 
 
     function mint() public onlyRole(FUNDRAISING_BOARD) returns (uint) {
-        uint tokenId = uint(keccak256(abi.encodePacked(block.number)));
+        uint tokenId = counter++;
+        
         _safeMint(tx.origin, tokenId);
+
+        uint32 time = uint32(block.timestamp);
+        data[tokenId] = TamagochiData(msg.sender, time, time, time, time);
+        
         return tokenId;
     }
 
@@ -172,5 +202,12 @@ contract TamagochiToken is ERC721, AccessControl {
 
     function deactivate() external isOwner {
         selfdestruct(payable(owner));
+    }
+
+    // only set customSettings if not already set (saves ~700 gas)
+    function activateCustomSettings() private {
+        if (customSettings[msg.sender] == false) {
+            customSettings[msg.sender] = true;
+        }
     }
 }
