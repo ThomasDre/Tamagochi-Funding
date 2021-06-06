@@ -4,6 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./TamagochiToken.sol";
 
+
+// TODO only tokens that were bought on this board should be acceptedfor further actions
+
 contract Fundraising is AccessControl {
 
     // item represents different activities/supplies for a tamagochi
@@ -139,10 +142,9 @@ contract Fundraising is AccessControl {
     }
 
     // TODO buy token and money is stores in internal account
-    function buyToken(string calldata name) external payable isFeePaid(tokenPrice) {
+    function buyToken() external payable returns(uint) {
         uint tokenId = tamagochiToken.mint();
-        tamagochiToken.setTamagochiData(tokenId, name, address(this));
-        tamagochiToken.resetAttributes(tokenId);
+        return tokenId;
     }
 
     function resetTamagochi(uint token) external payable isFeePaid(resetPrice) {
