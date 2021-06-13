@@ -120,6 +120,10 @@ contract Fundraising is AccessControl {
         delete items[index];
     }
 
+    function getItems() external view returns(Item[] memory){
+        return items;
+    }
+
     function customizeWellFedOptimum(uint24 optimum) external onlyRole(BOARDMASTER_ROLE) {
         tamagochiToken.setWellFedOptimum(optimum);
     }
@@ -142,7 +146,7 @@ contract Fundraising is AccessControl {
     }
 
     // TODO buy token and money is stores in internal account
-    function buyToken() external payable returns(uint) {
+    function buyToken() external payable isFeePaid(tokenPrice) returns(uint) {
         uint tokenId = tamagochiToken.mint();
         return tokenId;
     }
