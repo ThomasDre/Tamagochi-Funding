@@ -14,7 +14,6 @@ function sleep(milliseconds) {
 
 contract("TamagochiToken test", async accounts => {
 
-
     let owner = accounts[0];
     let admin = accounts[1];
     let board = accounts[2];
