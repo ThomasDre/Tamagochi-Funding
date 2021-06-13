@@ -32,9 +32,9 @@ contract Fundraising is AccessControl {
 
     // puplished items can be used to keep a tamagochi happy and healty
     Item[] public items;
-
     TamagochiToken public tamagochiToken;
 
+    event TokenBought(address indexed buyer, uint indexed token);
     
     constructor(address tokenContractAddress) {
         // owner of board is also the owner of individual fundraising
@@ -145,9 +145,9 @@ contract Fundraising is AccessControl {
         tamagochiToken.applyItem(token, item.food, item.care, item.entertainment, item.education);
     }
 
-    // TODO buy token and money is stores in internal account
     function buyToken() external payable isFeePaid(tokenPrice) returns(uint) {
         uint tokenId = tamagochiToken.mint();
+        emit TokenBought(msg.sender, tokenId);
         return tokenId;
     }
 
