@@ -33,7 +33,7 @@ contract Fundraising is AccessControl {
     // puplished items can be used to keep a tamagochi happy and healty
     Item[] public items;
 
-    TamagochiToken private tamagochiToken;
+    TamagochiToken public tamagochiToken;
 
     
     constructor(address tokenContractAddress) {
