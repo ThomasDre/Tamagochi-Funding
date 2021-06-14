@@ -328,6 +328,33 @@ contract("Fundraising test", async accounts => {
         await fundraising.buyItem(0, token, {from: customer, value: ITEM_PRICE});
     });
 
+    it("customers can not buy an item for a token that was bought from another board", async () => {
+        // buy token from this board
+        await fundraising.setFundraisingHead(fundraisingHead, {from: owner});
+        await fundraising.addBoardMaster(boardMaster, {from: fundraisingHead});
+        await fundraising.addAccountant(accountant, {from: fundraisingHead});
+        await fundraising.setTokenPrice(TOKEN_PRICE, {from: accountant});
+        await fundraising.publishItem(ITEM_NAME, ITEM_PRICE, ITEM_FOOD, ITEM_CARE, ITEM_ENTERTAINMENT, ITEM_EDUCATION, {from: boardMaster});
+
+        let token;
+        let transaction = await fundraising.buyToken({from: customer, value: TOKEN_PRICE});
+        truffleAssert.eventEmitted(transaction, "TokenBought", (ev) => {
+            token = web3.utils.toBN(ev["token"]);
+            return true;
+        });
+
+        // init another board, and try to buy an item for the existing token
+        otherfundraising = await Fundraising.new(token.address);
+        await token.authorizeBoard(otherfundraising.address, {from: owner});
+        await otherfundraising.setFundraisingHead(fundraisingHead, {from: owner});
+        await otherfundraising.addBoardMaster(boardMaster, {from: fundraisingHead});
+        await otherfundraising.addAccountant(accountant, {from: fundraisingHead});
+        await otherfundraising.setTokenPrice(TOKEN_PRICE, {from: accountant});
+        await otherfundraising.publishItem(ITEM_NAME, ITEM_PRICE, ITEM_FOOD, ITEM_CARE, ITEM_ENTERTAINMENT, ITEM_EDUCATION, {from: boardMaster});
+
+        truffleAssert.reverts(otherfundraising.buyItem(0, token, {from: customer, value: ITEM_PRICE}));
+    })
+
     
     it("item price must be set before they can be bought", async() => {
         await fundraising.setFundraisingHead(fundraisingHead, {from: owner});
