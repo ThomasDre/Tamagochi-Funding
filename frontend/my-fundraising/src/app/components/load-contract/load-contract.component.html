@@ -1,0 +1,18 @@
+<div class="container">
+    <div class="row m-3">
+      <div class="col-7">
+        <input
+          type="text"
+          class="form-control"
+          id="address"
+          placeholder="Bar address"
+          [(ngModel)] = "address"
+        />
+      </div>
+      <div class="col">
+        <button id="loadBarSubmit" (click)="loadContract()" class="btn btn-primary" type="submit">
+          Load Bar
+        </button>
+      </div>
+    </div>
+</div>

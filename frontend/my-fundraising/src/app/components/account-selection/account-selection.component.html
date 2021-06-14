@@ -1,0 +1,12 @@
+<div id="account-selection">
+    <div id="chosen-account">
+        <p *ngIf="selected != null">{{selected}}</p>
+        <p *ngIf="selected == null">No account is selected!</p>
+    </div>
+    <form (submit)="chooseAccount()">
+        <select>
+            <option *ngFor="let account in accounts" [(ngModel)]="selected">{{account}}</option>
+        </select>
+        <button type="submit"></button>
+    </form>
+</div>

@@ -18,9 +18,9 @@ contract Board {
     mapping(address => bool) public registered;
     address[] public organisations;
 
-    TamagochiToken private tamagochiToken;
+    TamagochiToken public tamagochiToken;
 
-    event OrganisationRequest(string name, string url);
+    event OrganisationRequest(address account, string name, string url);
     event OrganisationAdded(string name, address account);
     event OrganisationRemoved(string name, address account);
 
@@ -91,7 +91,7 @@ contract Board {
 
     // organisations can send an request for participation on this platform
     function request(string memory name, string memory url) external {
-        emit OrganisationRequest(name, url);
+        emit OrganisationRequest(msg.sender, name, url);
     }
 
     /*  

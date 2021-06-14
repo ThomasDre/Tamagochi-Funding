@@ -1,0 +1,125 @@
+<div class="card" style="width: 30rem" data-address="{{ person.address }}">
+  <div class="card-body">
+    <h5 class="card-title">
+      <img
+        src="img/{{ role }}.png"
+        height="32px"
+        width="32px"
+        alt="{{ role }}"
+      /><span title="{{ person.address }}">{{ person.address }}</span>
+    </h5>
+    <p class="card-text">
+      <span class="eth-balance-{{ person.address }}">{{ person.ether }}</span>
+      Ξ<br />
+      <span class="beertoken-balance-{{ person.address }}"
+        >{{ person.beertokens }}</span
+      >
+      <img src="img/beer.png" height="32px" width="32px" /><br />
+      <span class="pending-beertoken-balance-{{ person.address }}"
+        >{{ person.pendingBeertokens }}</span
+      >
+      pending <img src="img/beer.png" height="32px" width="32px" />
+    </p>
+
+    <div class="row">
+      <div class="col-11">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 50px"
+              ><img src="img/beer.png" height="23px" width="23px"
+            /></span>
+          </div>
+          <input
+            type="number"
+            class="form-control"
+            id="buy-beer-quantity"
+            value="0"
+          />
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary" id="buy-beer-submit">
+              Buy Beer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-11">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <input
+              type="text"
+              class="form-control"
+              id="voted-song-input"
+              placeholder="Vote for"
+            />
+          </div>
+          <input
+            type="number"
+            class="form-control"
+            id="vote-beertoken-quantity"
+            value="0"
+          />
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary" id="vote-submit">
+              Vote
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-11">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 50px">Ξ</span>
+          </div>
+          <input
+            type="number"
+            class="form-control"
+            id="buy-beertoken-quantity"
+            value="0"
+          />
+          <div class="input-group-append">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="buy-beertoken-submit"
+            >
+              Buy Tokens
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-11">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 50px"
+              ><img src="img/beer.png" height="23px" width="23px"
+            /></span>
+          </div>
+          <input
+            type="number"
+            class="form-control"
+            id="cancel-beer-quantity"
+            value="0"
+          />
+          <div class="input-group-append">
+            <button
+              type="submit"
+              class="btn btn-warning"
+              id="cancel-beer-submit"
+            >
+              Cancel Beer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

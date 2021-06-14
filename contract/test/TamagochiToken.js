@@ -139,8 +139,8 @@ contract("TamagochiToken test", async accounts => {
         let token1 = 0;
         let token2 = 1;
 
-        assert.equal(await(await token.data(token1)).organisation, board, "organisation not set for token1");
-        assert.equal(await(await token.data(token2)).organisation, otherBoard, "organisation not set for token2");
+        assert.equal(await(await token.getData(token1)).organisation, board, "organisation not set for token1");
+        assert.equal(await(await token.getData(token2)).organisation, otherBoard, "organisation not set for token2");
         assert.equal(token1.toString() != token2.toString(), true, "token1 and token2 must be different");
     });
 
@@ -155,10 +155,10 @@ contract("TamagochiToken test", async accounts => {
 
         let tokenId = 0;
 
-        let fed = web3.utils.toBN(await(await token.data.call(tokenId)).fed);
-        let care = web3.utils.toBN(await(await token.data(tokenId)).care);
-        let entertained = web3.utils.toBN(await(await token.data(tokenId)).entertained);
-        let educated = web3.utils.toBN(await(await token.data(tokenId)).educated);
+        let fed = web3.utils.toBN(await(await token.getData(tokenId)).fed);
+        let care = web3.utils.toBN(await(await token.getData(tokenId)).care);
+        let entertained = web3.utils.toBN(await(await token.getData(tokenId)).entertained);
+        let educated = web3.utils.toBN(await(await token.getData(tokenId)).educated);
 
         // psuedo item values
         let fedPlus = new web3.utils.BN(10);
@@ -168,10 +168,10 @@ contract("TamagochiToken test", async accounts => {
 
         await token.applyItem(tokenId, fedPlus, carePlus, entertainedPlus, educatedPlus, {from: board});
 
-        assert.equal(await(await token.data(tokenId)).fed.toString(), fed.add(fedPlus).toString());
-        assert.equal(await(await token.data(tokenId)).care.toString(), care.add(carePlus).toString());
-        assert.equal(await(await token.data(tokenId)).entertained.toString(), entertained.add(entertainedPlus).toString());
-        assert.equal(await(await token.data(tokenId)).educated.toString(), educated.add(educatedPlus).toString());
+        assert.equal(await(await token.getData(tokenId)).fed.toString(), fed.add(fedPlus).toString());
+        assert.equal(await(await token.getData(tokenId)).care.toString(), care.add(carePlus).toString());
+        assert.equal(await(await token.getData(tokenId)).entertained.toString(), entertained.add(entertainedPlus).toString());
+        assert.equal(await(await token.getData(tokenId)).educated.toString(), educated.add(educatedPlus).toString());
     });
 
     it("foreign tokens can not be supplied with items", async () => {
@@ -188,10 +188,10 @@ contract("TamagochiToken test", async accounts => {
 
         let tokenId = 0;
 
-        let fed = web3.utils.toBN(await(await token.data.call(tokenId)).fed);
-        let care = web3.utils.toBN(await(await token.data(tokenId)).care);
-        let entertained = web3.utils.toBN(await(await token.data(tokenId)).entertained);
-        let educated = web3.utils.toBN(await(await token.data(tokenId)).educated);
+        let fed = web3.utils.toBN(await(await token.getData(tokenId)).fed);
+        let care = web3.utils.toBN(await(await token.getData(tokenId)).care);
+        let entertained = web3.utils.toBN(await(await token.getData(tokenId)).entertained);
+        let educated = web3.utils.toBN(await(await token.getData(tokenId)).educated);
 
         let timeToWait = 1500;  // block for 1 1/2 seconds
         let timeWaited = 2;     // blocktime measured in secs, therefore blocktime will have already increased by 3
@@ -203,10 +203,10 @@ contract("TamagochiToken test", async accounts => {
         sleep(timeToWait)
         
         await token.resetAttributes(tokenId, {from: board});
-        assert.equal(await(await token.data(tokenId)).fed.toString(), fed.add(reloadFed).toString());
-        assert.equal(await(await token.data(tokenId)).care.toString(), care.add(reloadCare).toString());
-        assert.equal(await(await token.data(tokenId)).entertained.toString(), entertained.add(reloadEntertained).toString());
-        assert.equal(await(await token.data(tokenId)).educated.toString(), educated.add(reloadEducated).toString());
+        assert.equal(await(await token.getData(tokenId)).fed.toString(), fed.add(reloadFed).toString());
+        assert.equal(await(await token.getData(tokenId)).care.toString(), care.add(reloadCare).toString());
+        assert.equal(await(await token.getData(tokenId)).entertained.toString(), entertained.add(reloadEntertained).toString());
+        assert.equal(await(await token.getData(tokenId)).educated.toString(), educated.add(reloadEducated).toString());
     });
 
     it("foreign token can not be reset", async () => {

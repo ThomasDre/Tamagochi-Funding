@@ -1,0 +1,28 @@
+<div class="container" id="admin-board">
+    <div class="row" id="admin-board-dashboard">
+        Address: <p id="admin-board-address"></p>
+        Balance: <p id="admin-board-balance"></p>
+    </div>
+    <div class="row mt-2">
+        <div class="col-6" id="admin-board-add-form">
+            <form (submit)="addOrganisation(address, name)">
+                <label for="organisation-address">
+                    Address
+                </label>
+                <input type="text" id="organisation-address" #address>
+                <label for="organisation-name"></label>
+                <input type="text" id="organisation-address" #name>
+                <button type="submit"></button>
+            </form>
+        </div>
+        <div class="col-6" id="admin-board-requester-list">
+            <ul>
+                <li *ngFor="let requester of requesters">
+                    <p>Account: {{requester.address}}</p>
+                    <p>Name: {{requester.name}}</p>
+                    <p>Url: {{requester.url}}</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

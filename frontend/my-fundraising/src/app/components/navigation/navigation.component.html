@@ -1,0 +1,37 @@
+<nav>
+    <div
+    id="nav-items"
+    class="navbar-nav overlay"
+    [ngClass]="{ 'pop-out-menu': showMenu }"
+    >
+    
+
+    <ul class="list-unstyled text-align-center">
+       
+
+        <li
+            class="nav-link"
+        >
+            <a routerLink="admin" routerLinkActive="active-link">
+                Admin Board
+            </a>
+        </li>
+        <li
+            class="nav-link"
+        >
+            <a routerLink="fundraising" routerLinkActive="active-link">
+                Fundraising Overview
+            </a>
+        </li>
+        <li
+            class="nav-link"
+        >
+            <a routerLink="party" routerLinkActive="active-link">
+                Parties
+            </a>
+        </li>
+        
+
+    </ul>
+</div>
+</nav>

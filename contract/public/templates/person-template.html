@@ -1,0 +1,11 @@
+<div class="col">
+    <div class="card {{ role }}_card" style="width: 14rem;" data-address="{{ person.address }}">
+        <div class="card-body">
+            <h5 class="card-title"><img src="img/{{ role }}.png" height="32px" width="32px" alt="{{ role }}"><span title="{{ person.address }}">{{ person.addressShort }}</span></h5>
+            <p class="card-text"><span class="eth-balance-{{ person.address }}">{{ person.ether }}</span> Ξ<br />
+                <span class="beertoken-balance-{{ person.address }}">{{ person.beertokens }}</span> <img src="img/beer.png" height="32px" width="32px" /><br />
+        </div>
+    </div>
+</div>
+
+<!-- TODO make new templates-->

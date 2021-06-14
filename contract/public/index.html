@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BeerBar</title>
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="img/favicon_white.ico"
+    />
+
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <header id="header">
+      <div class="container center">
+        <div class="row justify-content-center">
+          <h2>Fund my 'Gochi :-)</h2>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="row m-3">
+        <div class="col-7">
+          <input
+            type="text"
+            class="form-control"
+            id="address"
+            placeholder="Bar address"
+          />
+        </div>
+        <div class="col">
+          <button id="loadBarSubmit" class="btn btn-primary" type="submit">
+            Load Board
+          </button>
+        </div>
+      </div>
+
+      <div class="row m-1">
+        <div class="col-12" id="bar"></div>
+      </div>
+    </div>
+
+    <footer id="footer"></footer>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"
+      integrity="sha256-+JMHsXRyeTsws/tzbIh5YHQxRdKCuNjmvNcTFtY6DLc="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mouse0270-bootstrap-notify/3.1.7/bootstrap-notify.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/6.0.0/bignumber.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- web3.js v1.3.4 -->
+    <script src="js/web3.min.js"></script>
+
+    <script src="js/abis.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/detail/person.js"></script>
+    <script src="js/detail/owner.js"></script>
+    <script src="js/detail/barkeeper.js"></script>
+    <script src="js/detail/dj.js"></script>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+<div class="row m-3">
+  <div class="col-md-auto">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <img src="img/bar.png" height="64px" width="64px" alt="Bar" />{{
+          address }} {{#if barIsOpen}}<span
+            style="background-color: #2ecc40"
+            class="bar-state"
+            >OPEN</span
+          >
+          {{else}}<span style="background-color: #ff4136" class="bar-state"
+            >CLOSED</span
+          >{{/if}}
+        </h5>
+        <p class="card-text">
+          Ether:
+          <span class="eth-balance-{{ address }}">{{ ether }}</span> Ξ<br />
+          <span title="{{ beerAddress }}"
+            >{{ beerName }}:
+            <span class="beertoken-balance-{{ address }}"
+              >{{ beerAmount }}</span
+            >
+            {{ beerSymbol }} (of total {{ beerTotalSupply }} {{ beerSymbol }})
+            <img src="img/beer.png" height="32px" width="32px"
+          /></span>
+        </p>
+
+        <div class="row">
+          <div class="col-9">
+            <input
+              type="text"
+              class="form-control invite_address"
+              placeholder="Address"
+            />
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary invite_submit">
+              Invite
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row m-3">
+  <div class="col-10">
+    <div class="card">
+      <div class="card-body">
+        <table class="barview">
+          <tr>
+            <td class="bartexture bartexture_side"></td>
+            <td class="bartexture_middle">
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" id="owner">
+                      <h6 class="card-title">Owners</h6>
+                      <p class="card-text empty">
+                        Who should manage this bar without owners? Invite them!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" id="barkeeper">
+                      <h6 class="card-title">Barkeepers</h6>
+                      <p class="card-text empty">
+                        Where should we get beer without barkeepers? Invite
+                        them!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" id="dj">
+                      <h6 class="card-title">DJ's</h6>
+                      <p class="card-text empty">
+                        Who should get the party started without djs? Invite
+                        them!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="bartexture bartexture_side"></td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="bartexture bartexture_bottom"></td>
+          </tr>
+
+          <tr>
+            <td colspan="3">
+              <div class="card">
+                <div class="row">
+                  <div class="card-body">
+                    <h6 class="card-title">Partypeople</h6>
+                    <p class="card-text empty">
+                      No-one here to party :/ Invite someone!
+                    </p>
+                    <div class="row" id="person"></div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-2" id="person_detail"></div>
+</div>
+<div class="row m-3">
+  <div class="col-10">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <img src="img/dj.png" height="64px" width="64px" alt="Bar" />
+          Musicstage: {{#if votingIsOpen}}<span
+            style="background-color: #2ecc40"
+            class="voting-state"
+            >SONGVOTING OPEN</span
+          >
+          {{else}}<span style="background-color: #ff4136" class="voting-state"
+            >SONGVOTING CLOSED</span
+          >{{/if}}
+        </h5>
+        <p class="card-text">
+          Current song: {{#if selectedSong}}
+          <span class="selectedSong">{{ selectedSong }}</span>
+          {{else}} <span>No music is playing... boring!!!</span>
+          {{/if}}
+          <br />
+        </p>
+
+        <div class="row">
+          <div id="songVotingList">
+            <table class="votingView">
+              <tr>
+                <th>Song</th>
+                <th>Votes</th>
+              </tr>
+              {{#each songVoting}}
+              <tr>
+                <td>{{name}}</td>
+                <td>{{count}}</td>
+              </tr>
+              {{/each}}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

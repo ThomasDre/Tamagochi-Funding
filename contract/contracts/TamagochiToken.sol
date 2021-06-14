@@ -56,7 +56,7 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
     uint private counter = 0;
 
     // TODO mappings for items (headwear, shorts, shirts, jackets, neat-stuff)
-
+    
 
     /*
     NFT collectible, that can represents a tamagochi that fight for a particular beneficial project
