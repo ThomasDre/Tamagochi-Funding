@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./TamagochiToken.sol";
+import "./Tamagochi.sol";
 
 
 // TODO only tokens that were bought on this board should be acceptedfor further actions
@@ -29,6 +30,7 @@ contract Fundraising is AccessControl {
 
     uint public tokenPrice;
     uint public resetPrice;
+    uint public levelUpFee;
 
     // puplished items can be used to keep a tamagochi happy and healty
     Item[] public items;
@@ -62,6 +64,12 @@ contract Fundraising is AccessControl {
     modifier isFeePaid(uint price) {
         require(price > 0, "price has not yet been set");
         require(msg.value >= price, "not enough ether provided");
+        _;
+    }
+
+    modifier isTokenOfBoard(uint token) {
+        TamagochiData memory data = tamagochiToken.getData(token);
+        require(data.organisation == address(this), "Only tokens minted from this board are accepted");
         _;
     }
 
@@ -106,6 +114,10 @@ contract Fundraising is AccessControl {
         resetPrice = price;
     }
 
+    function setLevelUpFee(uint price) external onlyRole(ACCOUNTANT_ROLE) {
+        levelUpFee = price;
+    }
+
     function setItemPrice(uint index, uint newPrice) external onlyRole(ACCOUNTANT_ROLE) {
         items[index].price = newPrice;
     }
@@ -140,7 +152,11 @@ contract Fundraising is AccessControl {
         tamagochiToken.setWellEducatedOptimum(optimum);
     }
 
-    function buyItem(uint index, uint token) external payable isFeePaid(items[index].price) isOwnerOf(token) {
+    function customizeCooldown(uint24 cooldown) external onlyRole(BOARDMASTER_ROLE) {
+        tamagochiToken.setCooldown(cooldown);
+    }
+
+    function buyItem(uint index, uint token) external payable isFeePaid(items[index].price) isOwnerOf(token) isTokenOfBoard(token) {
         Item memory item = items[index];
         tamagochiToken.applyItem(token, item.food, item.care, item.entertainment, item.education);
     }
@@ -151,7 +167,11 @@ contract Fundraising is AccessControl {
         return tokenId;
     }
 
-    function resetTamagochi(uint token) external payable isFeePaid(resetPrice) {
+    function levelUp(uint token) external payable isFeePaid(levelUpFee) {
+        tamagochiToken.levelUp(token);
+    }
+
+    function resetTamagochi(uint token) external payable isFeePaid(resetPrice) isTokenOfBoard(token) {
         tamagochiToken.resetAttributes(token);
     }
 

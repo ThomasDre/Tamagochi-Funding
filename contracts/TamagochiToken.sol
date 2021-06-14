@@ -20,26 +20,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "./Tamagochi.sol";
+
 contract TamagochiToken is ERC721Pausable, AccessControl {
-
-    struct TamagochiData {
-        // the organisation minted the token
-        address organisation;
-
-        /*
-        attributes
-        
-        can be improved by events/actions:
-        e.g. wellFed = wellFed + action.wellFed
-        
-        saturation (shrinks over time) of an attribute is measured by:
-        quality = attribute - timestamp
-        */
-        uint32 fed;
-        uint32 care;
-        uint32 entertained;
-        uint32 educated;
-    }
 
     address public owner;
 
@@ -53,19 +36,22 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
     the overall happiness is calculated by a formula
     <tbd>rewards high saturations disproportionally</tbd>
     */
-    uint24 public constant WELL_FED_OPTIMUM_DEFAULT = 86400;          // 24h
-    uint24 public constant WELL_CARE_OPTIMUM_DEFAULT = 259200;        // 3days
-    uint24 public constant WELL_ENTERTAINED_OPTIMUM_DEFAULT = 604800; // 1 week
-    uint24 public constant WELL_EDUCATED_OPTIMUM_DEFAULT = 1209600;   // 2 weeks
+    uint24 public constant WELL_FED_OPTIMUM_DEFAULT = 86400;            // 24h
+    uint24 public constant WELL_CARE_OPTIMUM_DEFAULT = 259200;          // 3days
+    uint24 public constant WELL_ENTERTAINED_OPTIMUM_DEFAULT = 604800;   // 1 week
+    uint24 public constant WELL_EDUCATED_OPTIMUM_DEFAULT = 1209600;     // 2 weeks
+    uint24 public constant COOLDOWN_DEFAULT = 3600;                     // 1h             
+           
 
     mapping(address => bool) private customSettings;
     mapping(address => uint24) private customWellFedOptimum;
     mapping(address => uint24) private customWellCareOptimum;
     mapping(address => uint24) private customWellEntertainedOptimum;
     mapping(address => uint24) private customWellEducatedOptimum;
+    mapping(address => uint24) private customCooldown;
 
     // SMELL: storing the data off-chain might be preferable
-    mapping(uint => TamagochiData) public data;
+    mapping(uint => TamagochiData) private data;
 
     uint private counter = 0;
 
@@ -96,6 +82,12 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         _;
     }
 
+    modifier cooldownOver(uint token) {
+        uint32 currentTime = uint32(block.timestamp);
+        require(data[token].cooldownEnd < currentTime, "Level up not allowed, wait for end of cooldown period");
+        _;
+    }
+
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
         return interfaceId == type(IERC721).interfaceId
             || interfaceId == type(IERC721Metadata).interfaceId
@@ -108,6 +100,10 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
 
     function isCustomSetting(address account) public view returns(bool) {
         return customSettings[account];
+    }
+
+    function getData(uint token) external view returns(TamagochiData memory) {
+        return data[token];
     }
 
     function getWellFedOptimum(address account) public view returns(uint24) {
@@ -142,6 +138,15 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         }
     }
 
+    function getCooldown(address account) public view returns(uint24) {
+        if (customCooldown[account] > 0) {
+            return customCooldown[account];
+        } else {
+            return COOLDOWN_DEFAULT;
+        }
+    }
+
+    // TODO (SMELL?!?) we have these methods here and then we also have a method calling for each of these in Fundraising...neccessaryy?
     function setWellFedOptimum(uint24 optimum) public onlyRole(FUNDRAISING_BOARD) {
         customWellFedOptimum[msg.sender] = optimum;
         activateCustomSettings();
@@ -162,6 +167,11 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         activateCustomSettings();
     }
 
+    function setCooldown(uint24 cooldown) public onlyRole(FUNDRAISING_BOARD) {
+        customCooldown[msg.sender] = cooldown;
+        activateCustomSettings();
+    }
+
      function resetOptimums() public onlyRole(FUNDRAISING_BOARD) {
         delete customSettings[msg.sender];
         delete customWellFedOptimum[msg.sender];
@@ -171,10 +181,35 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
     }
 
     function applyItem(uint token, uint24 food, uint24 careness, uint24 entertainment, uint24 education) public onlyRole(FUNDRAISING_BOARD) isOwnerOf(token) {
+        bool isUnsatisfied = checkTamagochi(token);
+        
+        if (isUnsatisfied) {
+            data[token].neglected++;
+        }
+
         data[token].fed += food;
         data[token].care += careness;
         data[token].entertained += entertainment;
         data[token].educated += education;
+        data[token].totalTreats += (food + careness + entertainment + education);
+    }
+
+    function levelUp(uint token) public onlyRole(FUNDRAISING_BOARD) isOwnerOf(token) cooldownOver(token) {
+        (uint32 fedMin, uint32 careMin, uint32 entertainedMin, uint32 educatedMin) = calculateLevelUpMin();
+        if (data[token].fed > fedMin) {
+            data[token].size++;
+        }
+        if (data[token].care > careMin) {
+            data[token].bond++;
+        }
+        if (data[token].entertained > entertainedMin) {
+            data[token].happyness++;
+        }
+        if (data[token].educated > educatedMin) {
+            data[token].nerdyness++;
+        }
+
+        data[token].cooldownEnd = uint32(block.timestamp) + getCooldown(msg.sender);
     }
 
     function resetAttributes(uint token) public onlyRole(FUNDRAISING_BOARD) isOwnerOf(token)  {
@@ -184,6 +219,7 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         data[token].care = currentTime + WELL_CARE_OPTIMUM_DEFAULT;
         data[token].entertained = currentTime + WELL_ENTERTAINED_OPTIMUM_DEFAULT;
         data[token].educated = currentTime + WELL_EDUCATED_OPTIMUM_DEFAULT;
+        data[token].neglected = 0;
     } 
 
     function mint() public onlyRole(FUNDRAISING_BOARD) returns (uint) {
@@ -192,7 +228,18 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         _safeMint(tx.origin, tokenId);
 
         uint32 time = uint32(block.timestamp);
-        data[tokenId] = TamagochiData(msg.sender, time, time, time, time);
+        data[tokenId] = TamagochiData(
+            // org and initial basic attributes
+            msg.sender, 
+            time + getWellFedOptimum(msg.sender), time + getWellCareOptimum(msg.sender), 
+            time + getWellEntertainedOptimum(msg.sender), time + getWellEducatedOptimum(msg.sender),
+            
+            // cooldown, total_supply, neglected
+            time + COOLDOWN_DEFAULT, 0, 0, 
+
+            // start levels (associated attributes / dependant from basic attributes)
+            1, 1, 1, 1
+            );
         
         return tokenId;
     }
@@ -214,5 +261,24 @@ contract TamagochiToken is ERC721Pausable, AccessControl {
         if (customSettings[msg.sender] == false) {
             customSettings[msg.sender] = true;
         }
+    }
+
+    function checkTamagochi(uint token) private view returns(bool) {
+        uint32 currentTime = uint32(block.timestamp);
+        return data[token].fed < currentTime || data[token].care < currentTime || data[token].entertained < currentTime || data[token].educated < currentTime;
+    }
+
+    function calculateLevelUpMin() private view returns(uint32, uint32, uint32, uint32) {
+        uint32 currentTime = uint32(block.timestamp);
+        uint32 fedMin = currentTime + ((getWellFedOptimum(msg.sender) / 4) * 3);
+        uint32 careMin = currentTime + ((getWellCareOptimum(msg.sender) / 4) * 3);
+        uint32 entertainedMin = currentTime + ((getWellEntertainedOptimum(msg.sender) / 4) * 3);
+        uint32 educatedMin = currentTime + ((getWellEducatedOptimum(msg.sender) / 4) * 3);
+        return (fedMin, careMin, entertainedMin, educatedMin);
+    }
+
+    function calculatePerformance() private pure returns(uint32) {
+        // something extremely important needs to be returned
+        return 42;
     }
 }
