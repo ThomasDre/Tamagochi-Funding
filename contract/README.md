@@ -35,7 +35,10 @@ Project details
 
 Addresses
 ---------
-TODO - Write here on which addresses you have deployed the contracts on the LVAChain:
+Migrations:         0x4f0162f16d32aa8b54e73b81b18a9f80e3082a16
+Board:              0x8d3c7d094b8fdb92e9996216fe3e9829655b69d6
+TamagochiToken      0x297469e996f18a591ea18dbf26b641377f5dc1ff
+FundraisingBoard    (deplyoed during running time...)
 
 Description
 -----------
