@@ -39,6 +39,8 @@ TODO - Write here on which addresses you have deployed the contracts on the LVAC
 
 Description
 -----------
+(NOTE: as stated under Difficulties: Project is not finished unfortunately, especially the UI is incomplete...)
+
 Nomen est omen, and therefore the main usecase of this project is as the contract "Fundraising.sol" states :)
 
 Once the project is launced, organisation that are interested can request to participate in this project. Participating means the organisations get the opportunity to have their own "fundraising board".
@@ -161,6 +163,8 @@ Difficulties
 The biggest problem was actually to find an idea, that is "doable" and makes sense.
 Except for that no particular problems besides some minor problems that occured sometimes (delegatecall was not wokring as expected but this is not needed in this version anyhow, etc)
 Time was an issue, especially for the UI part, as the progress was not as fast as expected
+
+Frontend work underestiated, ran out of time and totally unfinished!
 
 
 Further Notes:
