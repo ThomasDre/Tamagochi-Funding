@@ -1,4 +1,4 @@
-image: node:11.12.0-stretch
+image: node:14.16.1-stretch-slim
   
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
